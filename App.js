@@ -10,11 +10,17 @@ export default function App() {
     z: 0,
   });
 
-  const [{ x1, y1, z1 }, setData1] = useState({
-    x1: 0,
-    y1: 0,
-    z1: 0,
-  });
+  // const [{ x1, y1, z1 }, setData1] = useState({
+  //   x1: 0,
+  //   y1: 0,
+  //   z1: 0,
+  // });
+
+  const [dataX, setDataX] = useState([0]);
+  const [dataY, setDataY] = useState([0]);
+  const [dataZ, setDataZ] = useState([0]);
+
+
   const [subscription, setSubscription] = useState(null);
 
   const _slow = () => Accelerometer.setUpdateInterval(1000);
@@ -55,16 +61,16 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (y > y1) {
-      setData1({ y1: y, });
-      console.log('y1: ', y1)
+    if (y > dataY) {
+      console.log('y1: ', y)
+      setDataY(y);
     }
   }, [{ y }]);
 
   useEffect(() => {
-    if (x > x1) {
-      setData1({ x1: x, });
-      console.log('x1: ', x1)
+    if (x > dataX) {
+      setDataX(x);
+      console.log('x1: ', x)
       chartX.push('x');
       chartY.push(x);
       // console.log('chartX: ', chartX);
@@ -73,9 +79,9 @@ export default function App() {
   }, [{ x }]);
 
   useEffect(() => {
-    if (z > z1) {
-      setData1({ z1: z, });
-      console.log('z1: ', z1)
+    if (z > dataZ) {
+      setDataZ(z);
+      console.log('z1: ', z)
     }
   }, [{ z }]);
 
@@ -89,11 +95,13 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.text}>Accelerometer: (in gs where 1g = 9.81 m/s^2)</Text>
       <Text style={styles.text}>Throw your phone and get a high score!</Text>
-      <Text style={styles.text}>HIGHSCORE: {x1}</Text>
+      <Text style={styles.text}>X: {dataX}</Text>
+      <Text style={styles.text}>Y: {dataY}</Text>
+      <Text style={styles.text}>Z: {dataZ}</Text>
 
-      <Text style={styles.text}>x: {x}</Text>
+      {/* <Text style={styles.text}>x: {x}</Text>
       <Text style={styles.text}>y: {y}</Text>
-      <Text style={styles.text}>z: {z}</Text>
+      <Text style={styles.text}>z: {z}</Text> */}
       {/* <Button title="Start" onPress={startChart} />
       <Button title="Stop" onPress={stopChart} /> */}
       <MyLineChart
