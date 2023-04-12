@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Accelerometer } from 'expo-sensors';
 import { LineChart } from 'react-native-chart-kit';
+import { NativeBaseProvider, Box, Center, Button } from 'native-base';
+import ProgressBar from './Components/ProgressBar';
 
 export default function App() {
   const [{ x, y, z }, setData] = useState({
@@ -10,15 +12,10 @@ export default function App() {
     z: 0,
   });
 
-  // const [{ x1, y1, z1 }, setData1] = useState({
-  //   x1: 0,
-  //   y1: 0,
-  //   z1: 0,
-  // });
-
-  const [dataX, setDataX] = useState([0]);
-  const [dataY, setDataY] = useState([0]);
-  const [dataZ, setDataZ] = useState([0]);
+  const [dataX, setDataX] = useState(0);
+  const [dataY, setDataY] = useState(0);
+  const [dataZ, setDataZ] = useState(0);
+  const [dataTotal, setDataTotal] = useState(0);
 
 
   const [subscription, setSubscription] = useState(null);
@@ -29,16 +26,19 @@ export default function App() {
   const [chartX, setChartX] = useState(['x']);
   const [chartY, setChartY] = useState([0]);
 
-  // let chartX = ['x'];
-  // let chartY = [0];
+
+  const resetData = () => {
+    setDataX(0);
+    setDataY(0);
+    setDataZ(0);
+  };
 
   // const chartInterval = () => {
   //   setInterval(() => {
-  //     chartX.push('x');
-  //     chartY.push(x);
-  //     console.log('chartX: ', chartX);
-  //     console.log('chartY: ', chartY);
-  //   }, 600);
+  //     setDataY(0);
+  //     setDataX(0);
+  //     setDataZ(0);
+  //   }, 5000);
   // };
 
   // const startChart = () => {
@@ -60,12 +60,15 @@ export default function App() {
     setSubscription(null);
   };
 
+
   useEffect(() => {
     if (y > dataY) {
       console.log('y1: ', y)
       setDataY(y);
+      setDataTotal(dataTotal + (y/1.2));
     }
   }, [{ y }]);
+
 
   useEffect(() => {
     if (x > dataX) {
@@ -73,8 +76,7 @@ export default function App() {
       console.log('x1: ', x)
       chartX.push('x');
       chartY.push(x);
-      // console.log('chartX: ', chartX);
-      // console.log('chartY: ', chartY);
+      setDataTotal(dataTotal + (x/1.2));
     }
   }, [{ x }]);
 
@@ -82,6 +84,7 @@ export default function App() {
     if (z > dataZ) {
       setDataZ(z);
       console.log('z1: ', z)
+      setDataTotal(dataTotal + (z/1.2));
     }
   }, [{ z }]);
 
@@ -92,24 +95,36 @@ export default function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Accelerometer: (in gs where 1g = 9.81 m/s^2)</Text>
-      <Text style={styles.text}>Throw your phone and get a high score!</Text>
-      <Text style={styles.text}>X: {dataX}</Text>
-      <Text style={styles.text}>Y: {dataY}</Text>
-      <Text style={styles.text}>Z: {dataZ}</Text>
+    <NativeBaseProvider>
 
-      {/* <Text style={styles.text}>x: {x}</Text>
+      <Box
+        bg={dataTotal > 70 ? "indigo.300" : "muted.400"}
+        flex={1}
+        justifyContent={'center'}
+        alignItems={'center'}
+      >
+     
+        <Text style={styles.text}>Throw your phone and get a high score!</Text>
+        <Text style={styles.text}>X: {dataX.toFixed(5)}</Text>
+        <Text style={styles.text}>Y: {dataY.toFixed(5)}</Text>
+        <Text style={styles.text}>Z: {dataZ.toFixed(5)}</Text>
+
+        {/* <Text style={styles.text}>x: {x}</Text>
       <Text style={styles.text}>y: {y}</Text>
-      <Text style={styles.text}>z: {z}</Text> */}
-      {/* <Button title="Start" onPress={startChart} />
-      <Button title="Stop" onPress={stopChart} /> */}
-      <MyLineChart
-        chartX={chartX}
-        chartY={chartY}
-      />
+    <Text style={styles.text}>z: {z}</Text> */}
+        <Button colorScheme={dataTotal > 70 ? "secondary" : "primary"} onPress={resetData}>Reset Highscores</Button>
+      {/* <Button title="Stop" onPress={stopChart} /> */}
+        <MyLineChart
+          chartX={chartX}
+          chartY={chartY}
+          />
+        <ProgressBar
+          dataTotal={dataTotal}
+          />
 
-    </View>
+         
+      </Box>
+    </NativeBaseProvider>
   );
 }
 
@@ -117,7 +132,7 @@ const MyLineChart = (props) => {
 
   return (
     <>
-      <Text style={styles.text}>Line Chart</Text>
+      <Text style={styles.text}>X Axis Chart</Text>
       <LineChart
         data={{
           labels: props.chartX,
